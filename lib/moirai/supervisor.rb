@@ -16,7 +16,7 @@ module Moirai
 
       sup = new
 
-      managers_lookup = raw_config["workers"].each do |worker_config|
+      raw_config["workers"].each do |worker_config|
         symbolized_config = Utils.symbolize_hash_keys worker_config
 
         manager = WorkerManager.new symbolized_config
@@ -41,7 +41,7 @@ module Moirai
       @rack_thread = Thread.new do
         app = Rack::Builder.new do
           use NavHealth::Middleware
-          run Proc.new { ['200', {}, []] }
+          run proc { ['200', {}, []] }
         end.to_app
 
         Rack::Handler::WEBrick.run app, Port: 3010
@@ -73,15 +73,11 @@ module Moirai
 
       @running = true
 
-      while running?
-        monitor_workers
-      end
+      monitor_workers while running?
     end
 
     def setup_workers
-      managers.each do |manager|
-        manager.setup_workers
-      end
+      managers.each(&setup_workers)
     end
 
     def worker_threads
@@ -98,15 +94,11 @@ module Moirai
     end
 
     def start_new_workers
-      managers.each do |manager|
-        manager.start_new_workers
-      end
+      managers.each(&start_new_workers)
     end
 
     def cleanup_workers
-      managers.each do |manager|
-        manager.cleanup_workers
-      end
+      managers.each(&cleanup_workers)
     end
 
     def setup_traps
@@ -114,7 +106,7 @@ module Moirai
       trap "INT", method(:stop)
     end
 
-    def kill_random_worker(signal = nil)
+    def kill_random_worker(_signal = nil)
       p [:supervisor, :kill_random_worker]
       random_thread = managers.sample.threads.sample
       random_thread.exit
@@ -127,9 +119,7 @@ module Moirai
 
       @running = false
 
-      managers.each do |manager|
-        manager.stop
-      end
+      managers.each(&stop)
 
       stop_rack_app
     end
