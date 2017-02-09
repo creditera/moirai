@@ -1,0 +1,14 @@
+health-check:
+  rack-handler: webrick
+  port: 3020
+workers:
+  - worker_class_name: FastWorker
+    count: 1
+    args:
+      topic: fast
+      channel: cool-and-light-messages
+  - worker_class_name: SlowWorker
+    count: 3
+    args:
+      topic: slow
+      channel: cool-and-heavy-messages

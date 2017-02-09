@@ -28,4 +28,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake", "~> 10.0"
   spec.add_development_dependency "minitest"
   spec.add_dependency "rack"
+  spec.add_dependency "nsq-ruby"
+  spec.add_dependency "request_store"
 end

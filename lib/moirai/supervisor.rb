@@ -2,7 +2,7 @@ require "rack"
 
 module Moirai
   class Supervisor
-    attr_reader :managers, :rack_thread
+    attr_reader :managers, :rack_thread, :health_check_port, :rack_handler
 
     def initialize(managers = nil)
       managers ||= []
@@ -14,17 +14,28 @@ module Moirai
     def self.from_file(config_file)
       raw_config = YAML.load_file(config_file)
 
-      sup = new
+      supervisor = new
 
-      managers_lookup = raw_config["workers"].each do |worker_config|
-        symbolized_config = Utils.symbolize_hash_keys worker_config
+      managers = setup_managers(raw_config)
 
-        manager = WorkerManager.new symbolized_config
-        
-        sup.add_manager manager
+      managers.each do |manager|
+        supervisor.add_manager manager
       end
 
-      sup
+      health_config = raw_config["health-check"] || {}
+
+      supervisor.health_check_port = health_config["port"] || 3010
+      supervisor.rack_handler = health_config["rack-handler"] || "webrick"
+
+      supervisor
+    end
+
+    def self.setup_managers(config)
+      config["workers"].map do |worker_config|
+        symbolized_config = Utils.symbolize_hash_keys worker_config
+
+        WorkerManager.new symbolized_config
+      end
     end
 
     def configure_health_check
@@ -44,7 +55,7 @@ module Moirai
           run Proc.new { ['200', {}, []] }
         end.to_app
 
-        Rack::Handler::WEBrick.run app, Port: 3010
+        Rack::Handler.get(rack_handler).run app, Port: health_check_port
       end
     end
 
