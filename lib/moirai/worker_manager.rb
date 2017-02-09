@@ -37,17 +37,14 @@ module Moirai
     end
 
     def stop_worker_thread(thread)
-      if worker = thread[:worker]
-        worker.stop
-      end
+      worker = thread[:worker]
+      worker.stop if worker
       thread.exit
       thread.join
     end
 
     def start_new_workers
-      while threads.size < count
-        add_worker_thread
-      end
+      add_worker_thread while threads.size < count
     end
 
     def stop
