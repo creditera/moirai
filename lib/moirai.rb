@@ -1,5 +1,10 @@
-require "moirai/version"
+require "bundler"
+Bundler.require
 
-module Moirai
-  # Your code goes here...
-end
+require_relative "./moirai/version"
+require_relative "./moirai/utils"
+require_relative "./moirai/worker_manager"
+require_relative "./moirai/rack_health"
+require_relative "./moirai/supervisor"
+
+module Moirai; end
