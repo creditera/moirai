@@ -7,6 +7,7 @@ require_relative "./moirai/worker_manager"
 require_relative "./moirai/rack_health"
 require_relative "./moirai/supervisor"
 require_relative "./moirai/worker"
+require "nsq"
 require_relative "./moirai/workers/nsq_worker"
 require_relative "./moirai/mixins/request_store"
 
