@@ -12,9 +12,7 @@ module Moirai
 
     def new_instance    
       if args
-        symbolized_args = Utils.symbolize_hash_keys args
-
-        worker_class.new symbolized_args
+        worker_class.new args
       else
         worker_class.new
       end
