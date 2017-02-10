@@ -3,8 +3,6 @@ module Moirai
     attr_accessor :worker_class_name, :worker_class, :count, :threads, :args
 
     def initialize(worker_class_name:, count:, args: nil)
-      args ||= {}
-
       self.worker_class_name = worker_class_name
       self.worker_class = Object.const_get worker_class_name
       self.count = count
@@ -12,9 +10,14 @@ module Moirai
       self.threads = []
     end
 
-    def new_instance
-      symbolized_args = Utils.symbolize_hash_keys args
-      worker_class.new symbolized_args
+    def new_instance    
+      if args
+        symbolized_args = Utils.symbolize_hash_keys args
+
+        worker_class.new symbolized_args
+      else
+        worker_class.new
+      end
     end
 
     def add_worker_thread

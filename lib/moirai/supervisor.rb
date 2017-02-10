@@ -4,10 +4,13 @@ module Moirai
   class Supervisor
     attr_reader :managers, :rack_thread, :health_check_port, :rack_handler
 
-    def initialize(managers = nil)
+    def initialize(managers = nil, options = nil)
       managers ||= []
+      options ||= {}
 
       @managers = managers
+      @health_check_port = options.fetch(:health_check_port, 3010)
+      @rack_handler = options.fetch(:rack_handler, "webrick")
       @running = false
     end
 
@@ -32,6 +35,8 @@ module Moirai
 
     def self.setup_managers(config)
       config["workers"].map do |worker_config|
+        # This config should have, at a minimum, the following keys -
+        # :worker_class_name, :count, and :args
         symbolized_config = Utils.symbolize_hash_keys worker_config
 
         WorkerManager.new symbolized_config
@@ -54,6 +59,8 @@ module Moirai
           use NavHealth::Middleware
           run Proc.new { ['200', {}, []] }
         end.to_app
+
+        p rack_handler
 
         Rack::Handler.get(rack_handler).run app, Port: health_check_port
       end
