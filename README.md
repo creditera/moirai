@@ -204,3 +204,29 @@ end
 supervisor = Moirai::Supervisor.from_file("./config/moirai.yml")
 supervisor.start
 ```
+
+Now you have a supervised worker process with 5 threaded copies of your `ArgWorker`! Woo!
+
+### NSQ Workers
+`Moirai` comes with a pre-defined `NsqWorker` module that you can include if you want a convenient NSQ worker process.
+
+```ruby
+require "moirai"
+
+class MyNsqWorker
+  include Moirai::NsqWorker
+end
+```
+
+The `Moirai::NsqWorker` defines an initialize method that will take a hash of options from your configuration yaml. Since it's an NSQ worker, it's going to need at least a `topic` to listen on and a `channel` to consume the `topic`'s messages.
+
+```yaml
+workers:
+  - worker_class_name: MyNsqWorker
+    count: 2
+    args:
+      :topic: test
+      :channel: foo
+```
+
+This will create two NSQ worker processes listening on the `test` topic, and consuming through the `foo` channel. Success!
