@@ -1,8 +1,10 @@
 require "rack"
+require "yaml"
 
 module Moirai
   class Supervisor
-    attr_reader :managers, :rack_thread, :health_check_port, :rack_handler
+    attr_accessor :health_check_port, :rack_handler
+    attr_reader :managers, :rack_thread
 
     def initialize(managers = nil, options = nil)
       managers ||= []
