@@ -230,3 +230,33 @@ workers:
 ```
 
 This will create two NSQ worker processes listening on the `test` topic, and consuming through the `foo` channel. Success!
+
+#### Interface
+The NSQ worker interface is slightly different than the standard worker interface: instead of defining a `work` method, you will need to define a `process` method that takes an NSQ message as an argument. You'll also need to call `finish` on the message when you're done with it so that it doesn't timeout and requeue.
+
+```ruby
+require "moirai"
+
+class MyNsqWorker
+  include Moirai::NsqWorker
+  
+  def process(message)
+    # DO PROCESSING HERE
+    
+    message.finish
+  end
+end
+```
+
+We use the [NSQ Ruby](https://github.com/wistia/nsq-ruby) gem to power our NSQ workers under the hood, so any option you would pass to the `NSQ::Consumer` class in that library can be added to the configuration YAML:
+
+```yaml
+workers:
+  - worker_class_name: MyNsqWorker
+    count: 2
+    args:
+      :topic: test
+      :channel: foo
+      :max_in_flight: 5
+      :nsqlookupd: "127.0.0.1:4161"
+```
