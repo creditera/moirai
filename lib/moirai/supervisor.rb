@@ -1,6 +1,3 @@
-require "rack"
-require "yaml"
-
 module Moirai
   class Supervisor
     attr_accessor :health_check_port, :rack_handler
