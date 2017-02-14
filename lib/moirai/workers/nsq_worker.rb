@@ -38,7 +38,9 @@ module Moirai
     def process(message); end
 
     def teardown
-      consumer.terminate
+      # If an NSQ Worker loses or cannot form a connection
+      # the consumer will not be present
+      consumer.terminate if consumer
     end
   end
 end
