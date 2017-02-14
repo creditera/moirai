@@ -20,7 +20,11 @@ module Moirai
 
     def default_consumer
       # Set up NSQ Consumer
-      Nsq::Consumer.new consumer_args
+      begin
+        Nsq::Consumer.new consumer_args
+      rescue Errno::ECONNREFUSED
+        raise ArgumentError, nsq_not_running_message
+      end
     end
 
     def setup
@@ -42,5 +46,11 @@ module Moirai
       # the consumer will not be present
       consumer.terminate if consumer
     end
+
+    private
+
+      def nsq_not_running_message
+        "It looks like NSQ is not running at #{consumer_args[:nsqd]}! Please ensure NSQ is running and try again."
+      end
   end
 end
