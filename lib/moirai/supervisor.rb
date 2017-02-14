@@ -1,7 +1,6 @@
 module Moirai
   class Supervisor
-    attr_accessor :health_check_port, :rack_handler
-    attr_reader :managers, :rack_thread
+    attr_accessor :health_check_port, :rack_handler, :managers, :rack_thread
 
     def initialize(managers = nil, options = nil)
       managers ||= []
@@ -29,13 +28,15 @@ module Moirai
       supervisor.health_check_port = health_config["port"] || 3010
       supervisor.rack_handler = health_config["rack-handler"] || "webrick"
 
+      Thread.current[:supervisor] = supervisor
+
       supervisor
     end
 
     def self.setup_managers(config)
       config["workers"].map do |worker_config|
         # This config should have, at a minimum, the following keys -
-        # :worker_class_name, :count, and :args
+        # :worker_class_name and :count
         symbolized_config = Utils.symbolize_hash_keys worker_config
 
         WorkerManager.new symbolized_config
@@ -43,23 +44,21 @@ module Moirai
     end
 
     def configure_health_check
-      NavHealth::Check.config do |health|
-        managers.each do |manager|
-          health.components.add manager.worker_class_name do
-            manager.threads.all?(&:alive?)
-          end
-        end
-      end
+      # NavHealth::Check.config do |health|
+      #   managers.each do |manager|
+      #     health.components.add manager.worker_class_name do
+      #       manager.threads.all?(&:alive?)
+      #     end
+      #   end
+      # end
     end
 
     def start_rack_app
-      @rack_thread = Thread.new do
+      @rack_thread = Thread.new(self) do |sup|
         app = Rack::Builder.new do
-          use NavHealth::Middleware
-          run Proc.new { ['200', {}, []] }
+          # use NavHealth::Middleware
+          run Moirai::RackHealth.new(sup)
         end.to_app
-
-        p rack_handler
 
         Rack::Handler.get(rack_handler).run app, Port: health_check_port
       end
@@ -129,6 +128,7 @@ module Moirai
     def setup_traps
       trap "TERM", method(:stop)
       trap "INT", method(:stop)
+      trap "HUP", method(:kill_random_worker)
     end
 
     def kill_random_worker(signal = nil)

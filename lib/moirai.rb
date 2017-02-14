@@ -3,7 +3,6 @@ Bundler.require
 
 require "rack"
 require "yaml"
-require "nav_health"
 require "nsq"
 
 require_relative "./moirai/version"

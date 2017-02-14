@@ -1,15 +1,5 @@
 module Moirai
-  class RackHealth
-    HEALTH_CHECK_PATH = "/nav_health"
-    HEALTH_STATUSES = %w(allgood ruhroh sonofa)
-    HEALTHY = 0
-    WARNING = 1
-    ERROR = 2
-
-    def initialize(supervisor)
-      @supervisor = supervisor
-    end
-
+  class HealthCheckApp
     def call(env)
       path = env['REQUEST_PATH'] || env['PATH_INFO']
 
@@ -27,7 +17,7 @@ module Moirai
         #   status = HEALTH_STATUSES[ERROR]
         # end
 
-        component_checks = manager_checks
+        component_checks = []
 
         body = {
           hostname: Socket.gethostname,
@@ -47,16 +37,6 @@ module Moirai
 
     def blank_response
       [200, {}, []]
-    end
-
-    def manager_checks
-      if @supervisor
-        @supervisor.managers.map do |manager|
-          manager.report_health
-        end
-      else
-        []
-      end
     end
   end
 end
