@@ -60,7 +60,7 @@ module Moirai
     end
 
     def setup_workers
-      count.times { add_worker_thread }
+      start_new_workers
     end
 
     def cleanup_workers
@@ -71,18 +71,22 @@ module Moirai
     end
 
     def stop_worker_thread(thread)
-      if worker = thread[:worker]
-        worker.stop
-      end
+      worker = thread[:worker]
+      worker.stop if worker
+
       thread.exit
       thread.join
+
       self.threads_reaped += 1
     end
 
     def start_new_workers
-      while threads.size < count
-        add_worker_thread
-      end
+      # This used to be a while loop,
+      # but it incurred an immediate performance hit,
+      # so we're doing this now
+      threads_to_add = count - threads.size
+
+      threads_to_add.times { add_worker_thread }
     end
 
     def stop

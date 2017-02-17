@@ -1,6 +1,8 @@
 module Moirai
   class Supervisor
-    attr_accessor :health_check_port, :rack_handler, :managers, :rack_thread
+    TERM_SIG = 0
+    
+    attr_accessor :running, :health_check_port, :rack_handler, :managers, :rack_thread
 
     def initialize(managers = nil, options = nil)
       managers ||= []
@@ -17,7 +19,7 @@ module Moirai
 
       supervisor = new
 
-      managers = setup_managers(raw_config)
+      managers = setup_managers(raw_config["workers"])
 
       managers.each do |manager|
         supervisor.add_manager manager
@@ -33,8 +35,9 @@ module Moirai
       supervisor
     end
 
+    # This method expects an array of worker config hashes
     def self.setup_managers(config)
-      config["workers"].map do |worker_config|
+      config.map do |worker_config|
         # This config should have, at a minimum, the following keys -
         # :worker_class_name and :count
         symbolized_config = Utils.symbolize_hash_keys worker_config
@@ -43,20 +46,9 @@ module Moirai
       end
     end
 
-    def configure_health_check
-      # NavHealth::Check.config do |health|
-      #   managers.each do |manager|
-      #     health.components.add manager.worker_class_name do
-      #       manager.threads.all?(&:alive?)
-      #     end
-      #   end
-      # end
-    end
-
     def start_rack_app
       @rack_thread = Thread.new(self) do |sup|
         app = Rack::Builder.new do
-          # use NavHealth::Middleware
           run Moirai::RackHealth.new(sup)
         end.to_app
 
@@ -84,7 +76,6 @@ module Moirai
 
       setup_traps
       setup_workers
-      configure_health_check
       start_rack_app
 
       @running = true
@@ -95,9 +86,7 @@ module Moirai
     end
 
     def setup_workers
-      managers.each do |manager|
-        manager.setup_workers
-      end
+      managers.each(&:setup_workers)
     end
 
     def worker_threads
@@ -114,39 +103,27 @@ module Moirai
     end
 
     def start_new_workers
-      managers.each do |manager|
-        manager.start_new_workers
-      end
+      managers.each(&:start_new_workers)
     end
 
     def cleanup_workers
-      managers.each do |manager|
-        manager.cleanup_workers
-      end
+      managers.each(&:cleanup_workers)
     end
 
     def setup_traps
       trap "TERM", method(:stop)
       trap "INT", method(:stop)
-      trap "HUP", method(:kill_random_worker)
-    end
-
-    def kill_random_worker(signal = nil)
-      p [:supervisor, :kill_random_worker]
-      random_thread = managers.sample.threads.sample
-      random_thread.exit
     end
 
     def stop(signal = nil)
+      signal ||= TERM_SIG
       signame = Signal.signame signal
 
       p [:supervisor, :stop, signame]
 
       @running = false
 
-      managers.each do |manager|
-        manager.stop
-      end
+      managers.each(&:stop)
 
       stop_rack_app
     end

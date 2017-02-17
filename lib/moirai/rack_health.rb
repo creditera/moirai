@@ -16,16 +16,9 @@ module Moirai
       if path == HEALTH_CHECK_PATH
         http_status = 200
 
-        headers = {
-          'Content-Type' => 'application/json'
-        }
+        headers = { "Content-Type" => "application/json" }
 
         status = HEALTH_STATUSES[HEALTHY]
-
-        # If any components that the app relies on are down, the app should be down
-        # if component_checks.any? { |check| check[:status] == HEALTH_STATUSES[ERROR] }
-        #   status = HEALTH_STATUSES[ERROR]
-        # end
 
         component_checks = manager_checks
 
@@ -37,7 +30,7 @@ module Moirai
           components: component_checks
         }
 
-        http_status = 500 if body[:status] == HEALTH_STATUSES[ERROR]
+        http_status = 500 if status == HEALTH_STATUSES[ERROR]
 
         [http_status, headers, [body.to_json]]
       else
@@ -51,9 +44,7 @@ module Moirai
 
     def manager_checks
       if @supervisor
-        @supervisor.managers.map do |manager|
-          manager.report_health
-        end
+        @supervisor.managers.map(&:report_health)
       else
         []
       end
