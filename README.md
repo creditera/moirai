@@ -7,7 +7,7 @@ Moirai is a small library for managing a multi-threaded worker process, meant to
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'moirai', git: "https://github.com/creditera/moirai.git"
+gem "moirai", git: "https://github.com/creditera/moirai.git"
 ```
 
 And then execute:
@@ -15,6 +15,27 @@ And then execute:
     $ bundle
 
 ## Usage
+### Working with a Project
+To define a worker process to run alongside a web process, add a file at `bin/worker` with contents to match the following snippet:
+
+```bash
+#! /usr/bin/ruby
+
+require "environment"
+require "moirai"
+
+config_file = "config/moirai.yml"
+
+supervisor = Moirai::Supervisor.from_file config_file
+supervisor.start
+```
+
+If your project uses a `Procfile`, you can add a `worker` or `moirai` process:
+
+```
+web: ./bin/server
+worker: ./bin/worker
+```
 
 ### Supervisor
 To spin up a worker process with Moirai, initialize a `Supervisor` and call `start`:
