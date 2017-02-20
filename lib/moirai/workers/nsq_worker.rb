@@ -13,7 +13,6 @@ module Moirai
 
     def nsq_defaults
       {
-        nsqd: "127.0.0.1:4150",
         max_in_flight: 2
       }
     end

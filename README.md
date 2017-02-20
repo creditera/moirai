@@ -7,16 +7,12 @@ Moirai is a small library for managing a multi-threaded worker process, meant to
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'moirai'
+gem 'moirai', git: "https://github.com/creditera/moirai.git"
 ```
 
 And then execute:
 
     $ bundle
-
-Or install it yourself as:
-
-    $ gem install moirai
 
 ## Usage
 
