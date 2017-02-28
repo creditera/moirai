@@ -1,7 +1,7 @@
 module Moirai
   class Supervisor
     TERM_SIG = 0
-    
+
     attr_accessor :running, :health_check_port, :rack_handler, :managers, :rack_thread
 
     def initialize(managers = nil, options = nil)
@@ -15,20 +15,36 @@ module Moirai
     end
 
     def self.from_file(config_file)
-      raw_config = YAML.load_file(config_file)
+      config_hash = Utils.symbolize_hash_keys YAML.load_file(config_file)
+
+      from_config(config_hash)
+    end
+
+    def self.from_config(config_hash)
+      Moirai.configure do |conf|
+        conf.globals = config_hash[:globals]
+        conf.health_check = config_hash[:health_check]
+        conf.workers = config_hash[:workers]
+      end
+
+      setup_supervisor
+    end
+
+    def self.setup_supervisor
+      config = Moirai.configuration
 
       supervisor = new
 
-      managers = setup_managers(raw_config["workers"])
+      managers = setup_managers(config.workers)
 
       managers.each do |manager|
         supervisor.add_manager manager
       end
 
-      health_config = raw_config["health-check"] || {}
+      health_config = config.health_check
 
-      supervisor.health_check_port = health_config["port"] || 3010
-      supervisor.rack_handler = health_config["rack-handler"] || "webrick"
+      supervisor.health_check_port = health_config[:port] || 3010
+      supervisor.rack_handler = health_config[:rack_handler] || "webrick"
 
       Thread.current[:supervisor] = supervisor
 

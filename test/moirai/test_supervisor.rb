@@ -13,6 +13,33 @@ class TestSupervisor < Minitest::Test
     assert_equal(3, supervisor.managers.first.count)
   end
 
+  def test_from_config
+    config_hash = {
+      globals: {
+        nsqlookupd: "127.0.0.1:4161"
+      },
+      health_check: {
+        port: 3150,
+        rack_handler: "puma"
+      },
+      workers: [
+        worker_class_name: "MyWorker",
+        count: 3,
+        args: {
+          topic: "ALS-MEM-created",
+          channel: "moirai-analytics-worker",
+          nsqlookupd: "172.29.1.78:4161"
+        }
+      ]
+    }
+
+    supervisor = Moirai::Supervisor.from_config(config_hash)
+
+    assert_equal(1, supervisor.managers.count)
+    assert_equal("MyWorker", supervisor.managers.first.worker_class_name)
+    assert_equal(3, supervisor.managers.first.count)
+  end
+
   def test_setup_managers
     config = {
       "worker_class_name" => "MyWorker",
