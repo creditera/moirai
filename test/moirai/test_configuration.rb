@@ -9,7 +9,7 @@ class TestMoiraiConfiguration < MiniTest::Test
       },
       health_check: {
         port: 3150,
-        "rack-handler": "puma"
+        rack_handler: "puma"
       },
       workers: [
         worker_class_name: "MemberCreatedAnalyticsWorker",

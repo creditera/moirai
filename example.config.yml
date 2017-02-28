@@ -1,5 +1,5 @@
 health-check:
-  rack-handler: webrick
+  rack_handler: webrick
   port: 3020
 workers:
   - worker_class_name: FastWorker

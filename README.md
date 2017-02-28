@@ -72,10 +72,10 @@ Let's define the `work` method and see our worker in action.
 ```ruby
 class MyWorker
   include Moirai::Worker
-  
+
   def work
     p "I'm working on it!"
-    
+
     sleep 1
   end
 end
@@ -95,17 +95,17 @@ If you need to perform additional setup for your worker or need to clean up afte
 ```ruby
 class MyWorker
   include Moirai::Worker
-  
+
   def setup
     p "Getting things ready for work..."
   end
-  
+
   def work
     p "I'm working on it!"
-    
+
     sleep 1
   end
-  
+
   def teardown
     p "Cleaning up my mess!"
   end
@@ -138,7 +138,7 @@ If your workers need configuration on initialize, the `WorkerManager` can take a
 ```ruby
 class ArgWorker
   include Moirai::Worker
-  
+
   def initialize(options)
     self.cool_prop = options[:cool_prop]
   end
@@ -178,7 +178,7 @@ The health check can be configured in the YAML file passed to the supervisor by 
 ```yaml
 health-check:
   port: 3050
-  rack-handler: puma
+  rack_handler: puma
 workers:
   - worker_class_name: ArgWorker
     count: 5
@@ -193,9 +193,15 @@ Let's see what a full `Moirai` setup looks like in action!
 
 ```yaml
 # ./config/moirai.yml
+globals:
+  nsqlookupd: "127.0.0.1:4161"
+  # or
+  nsqlookupd:
+    - "172.29.1.74:4161"
+    - "172.26.1.75:4161"
 health-check:
   port: 3050
-  rack-handler: puma
+  rack_handler: puma
 workers:
   - worker_class_name: ArgWorker
     count: 5
@@ -208,17 +214,20 @@ require "moirai"
 
 class ArgWorker
   include Moirai::Worker
-  
+
   def initialize(options)
     self.cool_prop = options[:cool_prop]
   end
-  
+
   def work
     p "Working on it!"
   end
 end
 
 supervisor = Moirai::Supervisor.from_file("./config/moirai.yml")
+# or
+supervisor = Moirai::Supervisor.from_config(some_config_hash_that_follows_same_format_as_yml_file)
+
 supervisor.start
 ```
 
@@ -256,10 +265,10 @@ require "moirai"
 
 class MyNsqWorker
   include Moirai::NsqWorker
-  
+
   def process(message)
     # DO PROCESSING HERE
-    
+
     message.finish
   end
 end
@@ -275,5 +284,11 @@ workers:
       :topic: test
       :channel: foo
       :max_in_flight: 5
+      # This will override the global config
       :nsqlookupd: "127.0.0.1:4161"
+      # or
+      :nsqlookupd:
+        - "127.0.0.1:4161"
+        - "127.0.0.1:4161"
+
 ```
