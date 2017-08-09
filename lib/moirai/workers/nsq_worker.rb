@@ -13,8 +13,9 @@ module Moirai
 
     def nsq_defaults
       {
-        max_in_flight: 2
-      }
+        max_in_flight: 2,
+        nsqlookupd: Moirai.configuration[:nsqlookupd]
+      }.compact
     end
 
     def default_consumer
