@@ -4,6 +4,7 @@ Bundler.require
 require "rack"
 require "yaml"
 require "nsq"
+require "singleton"
 
 require_relative "./moirai/version"
 require_relative "./moirai/utils"
