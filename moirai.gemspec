@@ -6,8 +6,8 @@ require 'moirai/version'
 Gem::Specification.new do |spec|
   spec.name          = "moirai"
   spec.version       = Moirai::VERSION
-  spec.authors       = ["Mitch Monsen", "Logan McPhail", "John Thornton"]
-  spec.email         = ["mitch@nav.com", "loganm@nav.com", "johnnyt@nav.com"]
+  spec.authors       = ["Mitch Monsen", "Logan McPhail", "John Thornton", "James Thompson"]
+  spec.email         = %w[mitch@nav.com loganm@nav.com johnnyt@nav.com jwthompson2@gmail.com]
 
   spec.summary       = "A gem for managing a multi-threaded worker process."
   spec.description   = "A gem for managing a multi-threaded worker process."
@@ -25,9 +25,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_development_dependency "bundler", "~> 1.11"
-  spec.add_development_dependency "rake", "~> 10.0"
-  spec.add_development_dependency "minitest"
-  spec.add_dependency "rack"
-  spec.add_dependency "nsq-ruby"
-  spec.add_dependency "request_store"
+  spec.add_development_dependency "rake", "~> 12.0"
+  spec.add_development_dependency "minitest", "~> 5.0"
+  spec.add_development_dependency "simplecov", "~> 0.16.1"
+
+  spec.add_dependency "rack", "~> 2.0"
+  spec.add_dependency "nsq-ruby", "~> 2.0"
+  spec.add_dependency "request_store", "~> 1.4"
 end

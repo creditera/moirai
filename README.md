@@ -1,5 +1,7 @@
 # Moirai
 
+[![Build Status](https://travis-ci.org/creditera/moirai.svg?branch=master)](https://travis-ci.org/creditera/moirai)
+
 Moirai is a small library for managing a multi-threaded worker process, meant to run by itself or alongside an existing web process.
 
 ## Installation
