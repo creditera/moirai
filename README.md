@@ -2,6 +2,7 @@
 
 [![Build Status](https://travis-ci.org/creditera/moirai.svg?branch=master)](https://travis-ci.org/creditera/moirai)
 [![Maintainability](https://api.codeclimate.com/v1/badges/a3235c1d2067292b947a/maintainability)](https://codeclimate.com/github/creditera/moirai/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/a3235c1d2067292b947a/test_coverage)](https://codeclimate.com/github/creditera/moirai/test_coverage)
 
 Moirai is a small library for managing a multi-threaded worker process, meant to run by itself or alongside an existing web process.
 
