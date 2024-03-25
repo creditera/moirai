@@ -24,12 +24,12 @@ Gem::Specification.new do |spec|
   spec.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency "bundler", "~> 1.11"
-  spec.add_development_dependency "rake", "~> 12.0"
-  spec.add_development_dependency "minitest", "~> 5.0"
-  spec.add_development_dependency "simplecov", "~> 0.16.1"
+  spec.add_development_dependency "bundler"
+  spec.add_development_dependency "rake"
+  spec.add_development_dependency "minitest"
+  spec.add_development_dependency "simplecov"
 
-  spec.add_dependency "rack", "~> 2.0"
-  spec.add_dependency "nsq-ruby", "~> 2.0"
-  spec.add_dependency "request_store", "~> 1.4"
+  spec.add_dependency "rack"
+  spec.add_dependency "nsq-ruby"
+  spec.add_dependency "request_store"
 end
