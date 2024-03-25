@@ -1,6 +1,6 @@
 require "test_helper"
 
-class TestMoiraiConfiguration < MiniTest::Test
+class TestMoiraiConfiguration < Minitest::Test
 
   def test_configure_sets_nsqlookupd
     config_hash = {
