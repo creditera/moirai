@@ -1,6 +1,6 @@
 require "test_helper"
 
-class TestMoirai < MiniTest::Test
+class TestMoirai < Minitest::Test
   def test_exists
     assert defined?(Moirai)
   end

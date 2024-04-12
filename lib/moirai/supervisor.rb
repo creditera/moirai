@@ -58,7 +58,7 @@ module Moirai
         # :worker_class_name and :count
         symbolized_config = Utils.symbolize_hash_keys worker_config
 
-        WorkerManager.new symbolized_config
+        WorkerManager.new(**symbolized_config)
       end
     end
 
